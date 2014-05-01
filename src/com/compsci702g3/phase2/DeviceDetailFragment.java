@@ -108,17 +108,18 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
                     public void onClick(View v) {
                         // Allow user to pick an image from Gallery or other
                         // registered apps
-                        Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                        intent.setType("audio/3gp");
-                        startActivityForResult(intent, CHOOSE_FILE_RESULT_CODE);
+                        //Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+                        //intent.setType("audio/3gp");
+                        //startActivityForResult(intent, CHOOSE_FILE_RESULT_CODE);
+                    	onActivityResult();
                     }
                 });
 
         return mContentView;
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent data) {
+    //@Override
+    public void onActivityResult() {//int requestCode, int resultCode, Intent data) {
 
         // User has picked an image. Transfer it to group owner i.e peer using
         // FileTransferService.

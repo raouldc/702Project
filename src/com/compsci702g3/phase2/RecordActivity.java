@@ -135,7 +135,7 @@ public class RecordActivity extends Activity
 
         OnClickListener clicker = new OnClickListener() {
             public void onClick(View v) {
-                Intent intent = new Intent(context, DeviceScanActivity.class);
+                Intent intent = new Intent(context, WiFiDirectActivity.class);
                 startActivity(intent); 
             }
         };

@@ -24,7 +24,6 @@ import android.os.Build;
 
 public class LoginActivity extends Activity {
 
-	private Button loginButton;
 	private Context context;
 	
 	@Override

@@ -109,7 +109,7 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
                         // Allow user to pick an image from Gallery or other
                         // registered apps
                         Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
-                        intent.setType("file/*");
+                        intent.setType("audio/3gp");
                         startActivityForResult(intent, CHOOSE_FILE_RESULT_CODE);
                     }
                 });
@@ -259,7 +259,7 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
                 statusText.setText("File copied - " + result);
                 Intent intent = new Intent();
                 intent.setAction(android.content.Intent.ACTION_VIEW);
-                intent.setDataAndType(Uri.parse("file://" + result), "image/*");
+                intent.setDataAndType(Uri.parse("file://" + result), "audio/3gp");
                 context.startActivity(intent);
             }
 

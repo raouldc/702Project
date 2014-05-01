@@ -9,6 +9,7 @@ import android.widget.Button;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.content.Context;
+import android.content.Intent;
 import android.util.Log;
 import android.media.MediaRecorder;
 import android.media.MediaPlayer;
@@ -27,6 +28,9 @@ public class RecordActivity extends Activity
 
     private PlayButton   mPlayButton = null;
     private MediaPlayer   mPlayer = null;
+    
+    private SendButton mSendButton = null;
+    private Context context = this;
 
     private void onRecord(boolean start) {
         if (start) {
@@ -119,6 +123,7 @@ public class RecordActivity extends Activity
             }
         };
 
+        
         public PlayButton(Context ctx) {
             super(ctx);
             setText("Start playing");
@@ -126,10 +131,27 @@ public class RecordActivity extends Activity
         }
     }
 
+    class SendButton extends Button {
+
+        OnClickListener clicker = new OnClickListener() {
+            public void onClick(View v) {
+                Intent intent = new Intent(context, DeviceScanActivity.class);
+                startActivity(intent); 
+            }
+        };
+
+        
+        public SendButton(Context ctx) {
+            super(ctx);
+            setText("Send file");
+            setOnClickListener(clicker);
+        }
+    }
+    
     public RecordActivity() throws NoSuchAlgorithmException, IOException {
         mFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
         mFileName += "/secretlol.3gp";
-      //  Hasher hash= new Hasher();
+      //  Hasher hash = new Hasher();
       //  hash.computeHash(mFileName);
     }
 
@@ -151,6 +173,12 @@ public class RecordActivity extends Activity
                 ViewGroup.LayoutParams.WRAP_CONTENT,
                 0));
         setContentView(ll);
+        mSendButton = new SendButton(this);
+        ll.addView(mSendButton,
+        	new LinearLayout.LayoutParams(
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    ViewGroup.LayoutParams.WRAP_CONTENT,
+                    0));
     }
 
     @Override

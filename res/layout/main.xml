@@ -9,13 +9,13 @@
         android:id="@+id/textView1"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="I&apos;m screen 1 (main.xml)"
+        android:text="@string/string_title"
         android:textAppearance="?android:attr/textAppearanceLarge" />
  
     <Button
         android:id="@+id/button1"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Click me to another screen" />
+        android:text="@string/string_button" />
  
 </LinearLayout>

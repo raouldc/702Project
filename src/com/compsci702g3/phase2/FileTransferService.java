@@ -23,8 +23,8 @@ import java.net.Socket;
 public class FileTransferService extends IntentService {
 
     private static final int SOCKET_TIMEOUT = 5000;
-    public static final String ACTION_SEND_FILE = "com.example.android.wifidirect.SEND_FILE";
-    public static final String EXTRAS_FILE_PATH = "file_url";
+    public static final String ACTION_SEND_FILE = "com.compsci702g3.phase2.SEND_FILE";
+    public static final String EXTRAS_FILE_PATH = "/assets/sample_file.txt";
     public static final String EXTRAS_GROUP_OWNER_ADDRESS = "go_host";
     public static final String EXTRAS_GROUP_OWNER_PORT = "go_port";
 

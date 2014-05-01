@@ -122,7 +122,8 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 
         // User has picked an image. Transfer it to group owner i.e peer using
         // FileTransferService.
-        Uri uri = data.getData();
+    	String mFileName = Environment.getExternalStorageDirectory().getAbsolutePath() + "/assets/recording.3gp";
+        Uri uri = Uri.parse(mFileName);//data.getData();
         TextView statusText = (TextView) mContentView.findViewById(R.id.status_text);
         statusText.setText("Sending: " + uri);
         Log.d(WiFiDirectActivity.TAG, "Intent----------- " + uri);

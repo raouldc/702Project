@@ -150,7 +150,7 @@ public class RecordActivity extends Activity
     
     public RecordActivity() throws NoSuchAlgorithmException, IOException {
         mFileName = Environment.getExternalStorageDirectory().getAbsolutePath();
-        mFileName += "/assets/recording.3gp";
+        mFileName += "/recording.3gp";
       //  Hasher hash = new Hasher();
       //  hash.computeHash(mFileName);
     }

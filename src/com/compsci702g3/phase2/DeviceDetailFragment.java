@@ -241,7 +241,6 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 
                 Log.d(WiFiDirectActivity.TAG, "server: copying files " + f.toString());
                 InputStream inputstream = client.getInputStream();
-                Log.d(WiFiDirectActivity.TAG, "server: inputstream from client is " + inputstream.toString());
                 copyFile(inputstream, new FileOutputStream(f));
                 serverSocket.close();
                 return f.getAbsolutePath();

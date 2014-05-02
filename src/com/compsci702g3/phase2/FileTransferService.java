@@ -45,7 +45,7 @@ public class FileTransferService extends IntentService {
 
         Context context = getApplicationContext();
         if (intent.getAction().equals(ACTION_SEND_FILE)) {
-            String fileUri = intent.getExtras().getString(EXTRAS_FILE_PATH);
+            String fileUri = "file:///storage/emulated/0/com.compsci702g3.phase2/recording.3gp";//intent.getExtras().getString(EXTRAS_FILE_PATH);
             String host = intent.getExtras().getString(EXTRAS_GROUP_OWNER_ADDRESS);
             Socket socket = new Socket();
             int port = intent.getExtras().getInt(EXTRAS_GROUP_OWNER_PORT);

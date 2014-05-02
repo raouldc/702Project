@@ -231,7 +231,7 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
                 Socket client = serverSocket.accept();
                 Log.d(WiFiDirectActivity.TAG, "Server: connection done");
                 final File f = new File(Environment.getExternalStorageDirectory() + "/"
-                        + context.getPackageName() + "/wifip2pshared-" + System.currentTimeMillis()
+                        + context.getPackageName() + "/receivedfile-" + System.currentTimeMillis()
                         + ".3gp");
 
                 File dirs = new File(f.getParent());
@@ -241,6 +241,7 @@ public class DeviceDetailFragment extends Fragment implements ConnectionInfoList
 
                 Log.d(WiFiDirectActivity.TAG, "server: copying files " + f.toString());
                 InputStream inputstream = client.getInputStream();
+                Log.d(WiFiDirectActivity.TAG, "server: inputstream from client is " + inputstream.toString());
                 copyFile(inputstream, new FileOutputStream(f));
                 serverSocket.close();
                 return f.getAbsolutePath();

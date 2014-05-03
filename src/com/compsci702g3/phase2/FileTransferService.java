@@ -62,8 +62,11 @@ public class FileTransferService extends IntentService {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-            sendFile(intent, context, fileUri);
+            System.out.println("Sending Hash....");
             sendFile(intent,context, "file://"+HASH_FILE_DIR);//send hash
+            System.out.println("Sending Audio File....");
+            sendFile(intent, context, fileUri);
+            
 
         }
     }

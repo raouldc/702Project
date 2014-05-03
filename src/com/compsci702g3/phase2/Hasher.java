@@ -10,7 +10,7 @@ public class Hasher {
 	
 	
 	//computes the SHA-256 hash of an input file and prints it to the console
-	public void computeHash(String filename) throws NoSuchAlgorithmException, IOException
+	public String computeHash(String filename) throws NoSuchAlgorithmException, IOException
 	{
 		MessageDigest md = MessageDigest.getInstance("SHA-256");
         FileInputStream fis = new FileInputStream(filename);
@@ -38,6 +38,7 @@ public class Hasher {
     	}
  
     	System.out.println("Hex format : " + hexString.toString());
+		return sb.toString();
 	}
 
 }

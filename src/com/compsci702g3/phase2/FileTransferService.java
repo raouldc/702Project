@@ -9,12 +9,16 @@ import android.content.Intent;
 import android.net.Uri;
 import android.util.Log;
 
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.io.OutputStreamWriter;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.security.NoSuchAlgorithmException;
 
 /**
  * A service that process each file transfer request i.e Intent by opening a
@@ -27,6 +31,7 @@ public class FileTransferService extends IntentService {
     public static final String EXTRAS_FILE_PATH = "file_url";
     public static final String EXTRAS_GROUP_OWNER_ADDRESS = "go_host";
     public static final String EXTRAS_GROUP_OWNER_PORT = "go_port";
+    public static final String HASH_FILE_DIR = "/storage/emulated/0/com.compsci702g3.phase2/recording.hash";
 
     public FileTransferService(String name) {
         super(name);
@@ -46,41 +51,69 @@ public class FileTransferService extends IntentService {
         Context context = getApplicationContext();
         if (intent.getAction().equals(ACTION_SEND_FILE)) {
             String fileUri = "file:///storage/emulated/0/com.compsci702g3.phase2/recording.3gp";//intent.getExtras().getString(EXTRAS_FILE_PATH);
-            String host = intent.getExtras().getString(EXTRAS_GROUP_OWNER_ADDRESS);
-            Socket socket = new Socket();
-            int port = intent.getExtras().getInt(EXTRAS_GROUP_OWNER_PORT);
-
+            
             try {
-                Log.d(WiFiDirectActivity.TAG, "Opening client socket - ");
-                socket.bind(null);
-                socket.connect((new InetSocketAddress(host, port)), SOCKET_TIMEOUT);
-
-                Log.d(WiFiDirectActivity.TAG, "Client socket - " + socket.isConnected());
-                OutputStream stream = socket.getOutputStream();
-                ContentResolver cr = context.getContentResolver();
-                InputStream is = null;
-                try {
-                    is = cr.openInputStream(Uri.parse(fileUri));
-                } catch (FileNotFoundException e) {
-                    Log.d(WiFiDirectActivity.TAG, e.toString());
-                }
-                DeviceDetailFragment.copyFile(is, stream);
-                Log.d(WiFiDirectActivity.TAG, "Client: Data written");
-            } catch (IOException e) {
-                Log.e(WiFiDirectActivity.TAG, e.getMessage());
-            } finally {
-                if (socket != null) {
-                    if (socket.isConnected()) {
-                        try {
-                            socket.close();
-                        } catch (IOException e) {
-                            // Give up
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
+				String audioHash = new Hasher().computeHash("/storage/emulated/0/com.compsci702g3.phase2/recording.3gp");
+				writeHash(audioHash);
+			} catch (NoSuchAlgorithmException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+            sendFile(intent, context, fileUri);
+            sendFile(intent,context, "file://"+HASH_FILE_DIR);//send hash
 
         }
     }
+    
+    private void writeHash(String hash) throws IOException
+    {
+    	File myFile = new File(HASH_FILE_DIR);
+        myFile.createNewFile();
+        FileOutputStream fOut = new FileOutputStream(myFile);
+        OutputStreamWriter myOutWriter =new OutputStreamWriter(fOut);
+        myOutWriter.append(hash);
+        myOutWriter.close();
+        fOut.close();
+    }
+    
+
+	private void sendFile(Intent intent, Context context, String fileUri) {
+		String host = intent.getExtras().getString(EXTRAS_GROUP_OWNER_ADDRESS);
+		Socket socket = new Socket();
+		int port = intent.getExtras().getInt(EXTRAS_GROUP_OWNER_PORT);
+
+		try {
+		    Log.d(WiFiDirectActivity.TAG, "Opening client socket - ");
+		    socket.bind(null);
+		    socket.connect((new InetSocketAddress(host, port)), SOCKET_TIMEOUT);
+
+		    Log.d(WiFiDirectActivity.TAG, "Client socket - " + socket.isConnected());
+		    OutputStream stream = socket.getOutputStream();
+		    ContentResolver cr = context.getContentResolver();
+		    InputStream is = null;
+		    try {
+		        is = cr.openInputStream(Uri.parse(fileUri));
+		    } catch (FileNotFoundException e) {
+		        Log.d(WiFiDirectActivity.TAG, e.toString());
+		    }
+		    DeviceDetailFragment.copyFile(is, stream);
+		    Log.d(WiFiDirectActivity.TAG, "Client: Data written");
+		} catch (IOException e) {
+		    Log.e(WiFiDirectActivity.TAG, e.getMessage());
+		} finally {
+		    if (socket != null) {
+		        if (socket.isConnected()) {
+		            try {
+		                socket.close();
+		            } catch (IOException e) {
+		                // Give up
+		                e.printStackTrace();
+		            }
+		        }
+		    }
+		}
+	}
 }

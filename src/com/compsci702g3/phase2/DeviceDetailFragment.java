@@ -30,6 +30,7 @@ import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Environment;
+import android.util.Base64;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -43,6 +44,7 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.DataOutputStream;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -259,27 +261,23 @@ public class DeviceDetailFragment extends Fragment implements
 				Log.d(WiFiDirectActivity.TAG, "Server: Socket opened");
 				Socket client = serverSocket.accept();
 				Log.d(WiFiDirectActivity.TAG, "Server: connection done");
-				final File f = new File(
-						Environment.getExternalStorageDirectory() + "/"
-								+ context.getPackageName() + "/receivedfile-"
-								+ System.currentTimeMillis() + ".3gp");
-
-				File dirs = new File(f.getParent());
-				if (!dirs.exists())
-					dirs.mkdirs();
-				f.createNewFile();
 
 				Log.d(WiFiDirectActivity.TAG,
-						"server: copying files " + f.toString());
+						"server: copying files " );
 				InputStream inputstream = client.getInputStream();
-				String hash = receiveHashandFile(inputstream, new FileOutputStream(f));
-				Log.d(WiFiDirectActivity.TAG, "Received Hash is: "+hash);
+				HashAndFile hashF = receiveHashandFile(inputstream);
+				Log.d(WiFiDirectActivity.TAG, "Received Hash is: "+hashF.hash);
 				serverSocket.close();
-				if(f.getAbsolutePath()!=null)
+				if(hashF.b64file!=null)
 				{
 					try {
-						String computedHash = new Hasher().computeHash(f.getAbsolutePath());
+						String computedHash = new Hasher().computeHash(hashF.b64file);
 						//hash.equals();
+						if(!computedHash.equals(hashF.hash))
+						{
+							throw new RuntimeException("hashes do not match");
+						}
+						
 						Log.d(WiFiDirectActivity.TAG, "Received File Hash is: "+computedHash);
 					} catch (NoSuchAlgorithmException e) {
 						// TODO Auto-generated catch block
@@ -288,7 +286,7 @@ public class DeviceDetailFragment extends Fragment implements
 				}
 				
 				
-				return f.getAbsolutePath();
+				return hashF.b64file;
 			} catch (IOException e) {
 				Log.e(WiFiDirectActivity.TAG, e.getMessage());
 				return null;
@@ -344,36 +342,80 @@ public class DeviceDetailFragment extends Fragment implements
 	}
 
 	public static boolean sendHashandFile(InputStream inputStream,
-			OutputStream out, String hash) throws IOException {
+			OutputStream out, String hash, String b64file) throws IOException {
 
 		OutputStreamWriter outwr = new OutputStreamWriter(out);
 		BufferedWriter buffwr = new BufferedWriter(outwr);
 		buffwr.write(hash);
 		buffwr.newLine();
 		
+		Log.d(WiFiDirectActivity.TAG, "Sent B64 is: "+b64file);
+		
+		buffwr.write(b64file);
+		buffwr.newLine();
+		
 		buffwr.close();
 		outwr.close();
-		return copyFile(inputStream, out);
 		
+		inputStream.close();
+		out.close();
 		
-		
+		return true;
 
 	}
 
-	public static String receiveHashandFile(InputStream inputStream,
-			OutputStream out) throws IOException {
+	public static HashAndFile receiveHashandFile(InputStream inputStream) throws IOException {
 		InputStreamReader inp = new InputStreamReader(inputStream);
 		BufferedReader buffI = new BufferedReader(inp);
 		String hash = buffI.readLine();
+		String line ="";
+		String b64file = null;
+		b64file = buffI.readLine();
 		
+		Log.d(WiFiDirectActivity.TAG, "Received B64 is: "+b64file);
+		
+		
+		byte[] data = Base64.decode(b64file, Base64.DEFAULT);
+		
+		String path = "/storage/emulated/0/com.compsci702g3.phase2/recordingreceived.3gp";
+		File file = new File(path);
+		
+		FileOutputStream fos = null;
 
-		
-		copyFile(inputStream, out);
+		try {
+			
+			fos = new FileOutputStream(file);
+			
+			// Writes bytes from the specified byte array to this file output stream 
+			fos.write(data);
+
+		}
+		catch (FileNotFoundException e) {
+			System.out.println("File not found" + e);
+		}
+		catch (IOException ioe) {
+			System.out.println("Exception while writing file " + ioe);
+		}
+		finally {
+			// close the streams using close method
+			try {
+				if (fos != null) {
+					fos.close();
+				}
+			}
+			catch (IOException ioe) {
+				System.out.println("Error while closing stream: " + ioe);
+			}
+
+		}
 		
 		buffI.close();
 		inp.close();
 		
-		return hash;
+		inputStream.close();		
+		HashAndFile f = new HashAndFile(hash, path);
+		return f;
 	}
+	
 
 }

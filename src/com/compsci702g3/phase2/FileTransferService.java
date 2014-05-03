@@ -7,8 +7,12 @@ import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.net.Uri;
+import android.util.Base64;
 import android.util.Log;
 
+import java.io.BufferedInputStream;
+import java.io.ByteArrayInputStream;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -51,9 +55,9 @@ public class FileTransferService extends IntentService {
         Context context = getApplicationContext();
         if (intent.getAction().equals(ACTION_SEND_FILE)) {
             String fileUri = "file:///storage/emulated/0/com.compsci702g3.phase2/recording.3gp";//intent.getExtras().getString(EXTRAS_FILE_PATH);
-            
+            String audioHash="";
             try {
-				String audioHash = new Hasher().computeHash("/storage/emulated/0/com.compsci702g3.phase2/recording.3gp");
+				audioHash = new Hasher().computeHash("/storage/emulated/0/com.compsci702g3.phase2/recording.3gp");
 				writeHash(audioHash);
 			} catch (NoSuchAlgorithmException e) {
 				// TODO Auto-generated catch block
@@ -62,10 +66,10 @@ public class FileTransferService extends IntentService {
 				// TODO Auto-generated catch block
 				e.printStackTrace();
 			}
-            System.out.println("Sending Hash....");
-            sendFile(intent,context, "file://"+HASH_FILE_DIR);//send hash
+//            System.out.println("Sending Hash....");
+//            sendFile(intent,context, "file://"+HASH_FILE_DIR);//send hash
             System.out.println("Sending Audio File....");
-            sendFile(intent, context, fileUri);
+            sendFile(intent, context, fileUri,audioHash);
             
 
         }
@@ -83,7 +87,7 @@ public class FileTransferService extends IntentService {
     }
     
 
-	private void sendFile(Intent intent, Context context, String fileUri) {
+	private void sendFile(Intent intent, Context context, String fileUri,String hash) {
 		String host = intent.getExtras().getString(EXTRAS_GROUP_OWNER_ADDRESS);
 		Socket socket = new Socket();
 		int port = intent.getExtras().getInt(EXTRAS_GROUP_OWNER_PORT);
@@ -96,13 +100,38 @@ public class FileTransferService extends IntentService {
 		    Log.d(WiFiDirectActivity.TAG, "Client socket - " + socket.isConnected());
 		    OutputStream stream = socket.getOutputStream();
 		    ContentResolver cr = context.getContentResolver();
+		    
+		    
+		    
+		    
 		    InputStream is = null;
 		    try {
 		        is = cr.openInputStream(Uri.parse(fileUri));
 		    } catch (FileNotFoundException e) {
 		        Log.d(WiFiDirectActivity.TAG, e.toString());
 		    }
-		    DeviceDetailFragment.copyFile(is, stream);
+		    
+		    //convert file to byte array
+		    
+		    BufferedInputStream bs = new BufferedInputStream(is);
+		    ByteArrayOutputStream buffer = new ByteArrayOutputStream();
+
+		    int nRead;
+		    byte[] data = new byte[16384];
+
+		    while ((nRead = is.read(data, 0, data.length)) != -1) {
+		      buffer.write(data, 0, nRead);
+		    }
+
+		    buffer.flush();
+		    
+		    //encode byte array to Base64 String
+
+		    String encodedfile = Base64.encodeToString(buffer.toByteArray(), Base64.NO_WRAP);
+		    
+		    DeviceDetailFragment.sendHashandFile(is, stream, hash, encodedfile);
+		    
+		    //DeviceDetailFragment.copyFile(is, stream);
 		    Log.d(WiFiDirectActivity.TAG, "Client: Data written");
 		} catch (IOException e) {
 		    Log.e(WiFiDirectActivity.TAG, e.getMessage());

@@ -63,7 +63,7 @@ public class DeviceDetailFragment extends Fragment implements
 		ConnectionInfoListener {
 
 	protected static final int CHOOSE_FILE_RESULT_CODE = 20;
-	private View mContentView = null;
+	private static View mContentView = null;
 	private WifiP2pDevice device;
 	private WifiP2pInfo info;
 	ProgressDialog progressDialog = null;
@@ -266,12 +266,18 @@ public class DeviceDetailFragment extends Fragment implements
 						"server: copying files " );
 				InputStream inputstream = client.getInputStream();
 				HashAndFile hashF = receiveHashandFile(inputstream);
+				TextView view = (TextView) mContentView.findViewById(R.id.group_owner);
+				
 				Log.d(WiFiDirectActivity.TAG, "Received Hash is: "+hashF.hash);
+				view.setText("Received Hash is: " +hashF.hash);
 				serverSocket.close();
 				if(hashF.b64file!=null)
 				{
 					try {
+						TextView view2 = (TextView) mContentView.findViewById(R.id.device_info);
+					
 						String computedHash = new Hasher().computeHash(hashF.b64file);
+						view2.setText("Received File Hash is: "+computedHash);
 						//hash.equals();
 						if(!computedHash.equals(hashF.hash))
 						{
@@ -379,7 +385,7 @@ public class DeviceDetailFragment extends Fragment implements
 		
 		String path = "/storage/emulated/0/com.compsci702g3.phase2/recordingreceived.3gp";
 		File file = new File(path);
-		
+		file.createNewFile();
 		FileOutputStream fos = null;
 
 		try {

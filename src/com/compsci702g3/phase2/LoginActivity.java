@@ -1,31 +1,20 @@
 package com.compsci702g3.phase2;
 
-import java.util.List;
-
 import android.app.Activity;
-import android.app.ActionBar;
 import android.app.Fragment;
-import android.bluetooth.BluetoothAdapter;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.ResolveInfo;
-import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.Toast;
-import android.os.Build;
 
 public class LoginActivity extends Activity {
 
 	private Context context;
-	
+
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
@@ -47,9 +36,9 @@ public class LoginActivity extends Activity {
 	public void loginClick(View arg0) {
 		context = this;
 		Intent intent = new Intent(context, RecordActivity.class);
-        startActivity(intent);
-		}
-	
+		startActivity(intent);
+	}
+
 	@Override
 	public boolean onOptionsItemSelected(MenuItem item) {
 		// Handle action bar item clicks here. The action bar will

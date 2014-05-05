@@ -16,33 +16,8 @@
 
 package com.compsci702g3.phase2;
 
-import android.app.Fragment;
-import android.app.ProgressDialog;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.Intent;
-import android.net.Uri;
-import android.net.wifi.WpsInfo;
-import android.net.wifi.p2p.WifiP2pConfig;
-import android.net.wifi.p2p.WifiP2pDevice;
-import android.net.wifi.p2p.WifiP2pInfo;
-import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.os.Environment;
-import android.util.Base64;
-import android.util.Log;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.TextView;
-
-import com.compsci702g3.phase2.DeviceListFragment.DeviceActionListener;
-
-import java.io.BufferedOutputStream;
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.DataOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -54,6 +29,27 @@ import java.io.OutputStreamWriter;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.security.NoSuchAlgorithmException;
+
+import android.app.Fragment;
+import android.app.ProgressDialog;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
+import android.net.wifi.WpsInfo;
+import android.net.wifi.p2p.WifiP2pConfig;
+import android.net.wifi.p2p.WifiP2pDevice;
+import android.net.wifi.p2p.WifiP2pInfo;
+import android.net.wifi.p2p.WifiP2pManager.ConnectionInfoListener;
+import android.os.AsyncTask;
+import android.os.Bundle;
+import android.util.Base64;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.TextView;
+
+import com.compsci702g3.phase2.DeviceListFragment.DeviceActionListener;
 
 /**
  * A fragment that manages a particular peer and allows interaction with device
@@ -92,16 +88,7 @@ public class DeviceDetailFragment extends Fragment implements
 						}
 						progressDialog = ProgressDialog.show(getActivity(),
 								"Press back to cancel", "Connecting to :"
-										+ device.deviceAddress, true, true
-						// new DialogInterface.OnCancelListener() {
-						//
-						// @Override
-						// public void onCancel(DialogInterface dialog) {
-						// ((DeviceActionListener)
-						// getActivity()).cancelDisconnect();
-						// }
-						// }
-								);
+										+ device.deviceAddress, true, true);
 						((DeviceActionListener) getActivity()).connect(config);
 
 					}
@@ -121,13 +108,6 @@ public class DeviceDetailFragment extends Fragment implements
 
 					@Override
 					public void onClick(View v) {
-						// Allow user to pick an image from Gallery or other
-						// registered apps
-						// Intent intent = new
-						// Intent(Intent.ACTION_GET_CONTENT);
-						// intent.setType("audio/3gp");
-						// startActivityForResult(intent,
-						// CHOOSE_FILE_RESULT_CODE);
 						onActivityResult();
 					}
 				});
@@ -136,15 +116,11 @@ public class DeviceDetailFragment extends Fragment implements
 	}
 
 	// @Override
-	public void onActivityResult() {// int requestCode, int resultCode, Intent
-									// data) {
+	public void onActivityResult() {
 
 		// User has picked an image. Transfer it to group owner i.e peer using
-		// FileTransferService.
-		String mFileName = "/storage/emulated/0/com.compsci702g3.phase2/recording.3gp";// Environment.getExternalStorageDirectory().getAbsolutePath()
-																						// +
-																						// "/recording.3gp";
-		Uri uri = Uri.parse(mFileName);// data.getData();
+		String mFileName = "/storage/emulated/0/com.compsci702g3.phase2/recording.3gp";
+		Uri uri = Uri.parse(mFileName);
 		TextView statusText = (TextView) mContentView
 				.findViewById(R.id.status_text);
 		statusText.setText("Sending: " + uri);
@@ -262,36 +238,36 @@ public class DeviceDetailFragment extends Fragment implements
 				Socket client = serverSocket.accept();
 				Log.d(WiFiDirectActivity.TAG, "Server: connection done");
 
-				Log.d(WiFiDirectActivity.TAG,
-						"server: copying files " );
+				Log.d(WiFiDirectActivity.TAG, "server: copying files ");
 				InputStream inputstream = client.getInputStream();
 				HashAndFile hashF = receiveHashandFile(inputstream);
-				TextView view = (TextView) mContentView.findViewById(R.id.group_owner);
-				
-				Log.d(WiFiDirectActivity.TAG, "Received Hash is: "+hashF.hash);
-				view.setText("Received Hash is: " +hashF.hash);
+				TextView view = (TextView) mContentView
+						.findViewById(R.id.group_owner);
+
+				Log.d(WiFiDirectActivity.TAG, "Received Hash is: " + hashF.hash);
+				view.setText("Received Hash is: " + hashF.hash);
 				serverSocket.close();
-				if(hashF.b64file!=null)
-				{
+				if (hashF.b64file != null) {
 					try {
-						TextView view2 = (TextView) mContentView.findViewById(R.id.device_info);
-					
-						String computedHash = new Hasher().computeHash(hashF.b64file);
-						view2.setText("Received File Hash is: "+computedHash);
-						//hash.equals();
-						if(!computedHash.equals(hashF.hash))
-						{
+						TextView view2 = (TextView) mContentView
+								.findViewById(R.id.device_info);
+
+						String computedHash = new Hasher()
+								.computeHash(hashF.b64file);
+						view2.setText("Received File Hash is: " + computedHash);
+						// hash.equals();
+						if (!computedHash.equals(hashF.hash)) {
 							throw new RuntimeException("hashes do not match");
 						}
-						
-						Log.d(WiFiDirectActivity.TAG, "Received File Hash is: "+computedHash);
+
+						Log.d(WiFiDirectActivity.TAG, "Received File Hash is: "
+								+ computedHash);
 					} catch (NoSuchAlgorithmException e) {
 						// TODO Auto-generated catch block
 						e.printStackTrace();
 					}
 				}
-				
-				
+
 				return hashF.b64file;
 			} catch (IOException e) {
 				Log.e(WiFiDirectActivity.TAG, e.getMessage());
@@ -307,6 +283,7 @@ public class DeviceDetailFragment extends Fragment implements
 		@Override
 		protected void onPostExecute(String result) {
 			if (result != null) {
+				//display confirmation message
 				statusText.setText("File copied - " + result);
 				Intent intent = new Intent();
 				intent.setAction(android.content.Intent.ACTION_VIEW);
@@ -329,99 +306,83 @@ public class DeviceDetailFragment extends Fragment implements
 
 	}
 
-	public static boolean copyFile(InputStream inputStream, OutputStream out) {
-
-		byte buf[] = new byte[1024];
-		int len;
-		try {
-			while ((len = inputStream.read(buf)) != -1) {
-				out.write(buf, 0, len);
-
-			}
-			out.close();
-			inputStream.close();
-		} catch (IOException e) {
-			Log.d(WiFiDirectActivity.TAG, e.toString());
-			return false;
-		}
-		return true;
-	}
 
 	public static boolean sendHashandFile(InputStream inputStream,
 			OutputStream out, String hash, String b64file) throws IOException {
+		
+		//send Hash and hash of the file to the other client
 
 		OutputStreamWriter outwr = new OutputStreamWriter(out);
 		BufferedWriter buffwr = new BufferedWriter(outwr);
 		buffwr.write(hash);
 		buffwr.newLine();
-		
-		Log.d(WiFiDirectActivity.TAG, "Sent B64 is: "+b64file);
-		
+
+		Log.d(WiFiDirectActivity.TAG, "Sent B64 is: " + b64file);
+
 		buffwr.write(b64file);
 		buffwr.newLine();
-		
+
 		buffwr.close();
 		outwr.close();
-		
+
 		inputStream.close();
 		out.close();
-		
+
 		return true;
 
 	}
 
-	public static HashAndFile receiveHashandFile(InputStream inputStream) throws IOException {
+	public static HashAndFile receiveHashandFile(InputStream inputStream)
+			throws IOException {
+		
+		//receive the hash and the has of the file from the sender and save the file to the phone
+		
 		InputStreamReader inp = new InputStreamReader(inputStream);
 		BufferedReader buffI = new BufferedReader(inp);
 		String hash = buffI.readLine();
-		String line ="";
+		String line = "";
 		String b64file = null;
 		b64file = buffI.readLine();
-		
-		Log.d(WiFiDirectActivity.TAG, "Received B64 is: "+b64file);
-		
-		
+
+		Log.d(WiFiDirectActivity.TAG, "Received B64 is: " + b64file);
+
 		byte[] data = Base64.decode(b64file, Base64.DEFAULT);
-		
+
 		String path = "/storage/emulated/0/com.compsci702g3.phase2/recordingreceived.3gp";
 		File file = new File(path);
 		file.createNewFile();
 		FileOutputStream fos = null;
 
 		try {
-			
+
 			fos = new FileOutputStream(file);
-			
-			// Writes bytes from the specified byte array to this file output stream 
+
+			// Writes bytes from the specified byte array to this file output
+			// stream
 			fos.write(data);
 
-		}
-		catch (FileNotFoundException e) {
+		} catch (FileNotFoundException e) {
 			System.out.println("File not found" + e);
-		}
-		catch (IOException ioe) {
+		} catch (IOException ioe) {
 			System.out.println("Exception while writing file " + ioe);
-		}
-		finally {
+		} finally {
 			// close the streams using close method
 			try {
 				if (fos != null) {
 					fos.close();
 				}
-			}
-			catch (IOException ioe) {
+			} catch (IOException ioe) {
 				System.out.println("Error while closing stream: " + ioe);
 			}
 
 		}
-		
+
 		buffI.close();
 		inp.close();
-		
-		inputStream.close();		
+
+		inputStream.close();
 		HashAndFile f = new HashAndFile(hash, path);
 		return f;
 	}
-	
 
 }

@@ -2,14 +2,17 @@ package com.compsci702g3.phase2;
 
 import android.app.Activity;
 import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.os.Bundle;
 import android.os.Environment;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.view.Display;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Point;
 import android.util.Log;
 import android.media.MediaRecorder;
 import android.media.MediaPlayer;
@@ -159,27 +162,38 @@ public class RecordActivity extends Activity
     @Override
     public void onCreate(Bundle icicle) {
         super.onCreate(icicle);
-
-        LinearLayout ll = new LinearLayout(this);
+        
+        setContentView(R.layout.activity_record);
+        
+        Display display = getWindowManager().getDefaultDisplay();
+        Point size = new Point();
+        display.getSize(size);
+        int width = size.x;
+        int height = size.y-150;
+        
+        RelativeLayout ll = (RelativeLayout) findViewById(R.id.record);
         mRecordButton = new RecordButton(this);
         ll.addView(mRecordButton,
-            new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                0));
+            new RelativeLayout.LayoutParams(
+                width,
+                height/3));
+       //mRecordButton.setX(height/3);
+      //  ViewGroup.LayoutParams params=mRecordButton.getLayoutParams();
+       // params.width=300;
+        
         mPlayButton = new PlayButton(this);
         ll.addView(mPlayButton,
-            new LinearLayout.LayoutParams(
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                ViewGroup.LayoutParams.WRAP_CONTENT,
-                0));
+                new RelativeLayout.LayoutParams(
+                        width,
+                        height/3));
+        mPlayButton.setY(height/3);
         setContentView(ll);
         mSendButton = new SendButton(this);
         ll.addView(mSendButton,
-        	new LinearLayout.LayoutParams(
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    ViewGroup.LayoutParams.WRAP_CONTENT,
-                    0));
+                new RelativeLayout.LayoutParams(
+                        width,
+                        height/3));
+        mSendButton.setY(2*height/3);
     }
 
     @Override
